@@ -27,6 +27,9 @@ url: "https://dbluhm.github.io" # the base hostname & protocol for your site, e.
 twitter_username: dbluhm_
 github_username:  dbluhm
 
+collections:
+  - participants
+
 # Build settings
 theme: minima
 plugins:
