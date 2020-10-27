@@ -2,11 +2,11 @@ import random
 import time
 from collections import namedtuple
 
-def accident:
-    print("that wasn't an option, you have to type it as it is seen.")
-    time.delay 30
-    print("go on, type it correctly.")
 
+def accident():
+    print("that wasn't an option, you have to type it as it is seen.")
+    time.sleep(30)
+    print("go on, type it correctly.")
 
 
 class Creature:
@@ -14,7 +14,6 @@ class Creature:
     Base for Players and Monsters. This is where you define all things that are
     common to both players and monsters.
     """
-
     def __init__(self, name, hp, strength, speed, defense):
         self.name = name
         self.hp = hp
@@ -30,25 +29,33 @@ class Creature:
     def run(self, other):
         getaway = self.speed - other.speed
         if getaway < 0:
-            number2 = random.uniform(0,3)
-            number2 = int(number2)
-            if number2 = 1:
+            number2 = random.randint(0, 1)
+            if number2 == 1:
                 half_damage = self.strength/2 - other.defense
                 other.hp -= half_damage
-            print("{} couldn't get away and got attacked, {} damage dealt".format(self.name, half_damage)
-            elif number2 = 2:
+                print(
+                    "{} couldn't get away and got attacked, {} damage dealt"
+                    .format(self.name, half_damage)
+                )
+
+            elif number2 == 2:
                 self.attack(other)
-                print("{} has {} health left".format(other.name, other.hp))
-            elif int(number2) = 3:
-                print("{} couldn't get away, but you avoided the counter attack.")
-            elif number2 != 1, 2:
+                print(
+                    "{} has {} health left"
+                    .format(other.name, other.hp)
+                )
+
+            else:
                 print("ummm, there was an error.")
-                time.delay 30
+                time.sleep(10)
                 print("sending you back now")
-                #im not entirely sure how to send it back to the number2 random number generator...
-        elif: getaway > 0:
-            print("{} got away.")
-            time.delay 30
+
+        elif getaway > 0:
+            print("{} got away.".format(other.name))
+            time.sleep(10)
+
+        else:
+            print("{} couldn't get away, but you avoided the counter attack.")
 
 
 class Player(Creature):
@@ -64,6 +71,7 @@ class Player(Creature):
         # Do player specific setup
         self.klass = klass
 
+
 class Monster(Creature):
     """
     Container for monster attributes.
@@ -77,6 +85,8 @@ class Monster(Creature):
         # Do monster specific setup
         self.home = home
         self.gold = gold
+
+
 # This is the Data structure that will hold our region info
 class Region:
     """
@@ -86,22 +96,23 @@ class Region:
         self.required = required
         self.completed = completed
 
+
 # Global variables for our players
 player_fighter = Player("fighter", "Bob the Great", hp=15, strength=15, speed=5, defense=10)
 player_rouge = Player("rouge", "Thievy McTheivface", hp=15, strength=10, speed=15, defense=5)
 player_mage = Player("mage", "The Mad Hatter", hp=10, strength=20, speed=5, defense=5)
 
+
 player_rouge.attack(player_mage)
 print("{} has {} health left".format(player_mage.name, player_mage.hp))
+
 
 # This is the global variable that is our Forest region
 forest = Region(required=10, completed=0)
 
 
-
-
 #this is the item define
-class item:
+class Item:
     """
     container for item info
     """
@@ -111,11 +122,11 @@ class item:
         self.spdboost = spdboost
         self.defboost = defboost
 
+
 potion = item(hpboost=5, strboost=0, spdboost=0, defboost=0)
 
 
-
-class market:
+class Market:
     """
     container for item costs
     """
@@ -123,10 +134,8 @@ class market:
         self.cost = cost
 
 
-
 #this is the inventory
 inventory = ()
-
 
 
 #this is the Individual monster stats
@@ -146,8 +155,6 @@ def numberE ():
     return numberENC - forest.completed
 
 
-
-
 potion = used
 def use_item ():
     used1 = used.hpboost
@@ -155,7 +162,6 @@ def use_item ():
     used3 = used.spdboost
     used4 = used.defboost
     print("{},{},{},{}".format(used1, used2, used3, used4))
-
 
 
 ForestIN = {
@@ -183,8 +189,6 @@ ForestIN = {
 Fcreature = ForestIN
 
 
-
-
 def encounter ():
     print("you encounter {}!".format(ForestIN[str(EN)](str(Fcreature))))
 
@@ -193,6 +197,7 @@ def regions ():
     encounter()
     forest.completed += 1
     numberE()
+
 
 def Forestmain ():
     numberENC = 10
@@ -203,6 +208,7 @@ def Forestmain ():
     elif numberENC == 0:
         print("which region do you want to go to? ")
 
+
 def choice ():
 
 
@@ -210,11 +216,11 @@ def choice ():
 # will execute. All functions should be called from main
 def main():
     print("Welcome to text legends!")
-    time.delay 15
+    time.sleep(15)
     print("This is a text based game where your goal is to survive as an adventurer as long as possible.")
-    time.delay 15
+    time.sleep(15)
     print("You may type exit at any time to exit the game.")
-    time.delay 15
+    time.sleep(15)
     print("Type start to begin.")
     action = input()
     action = action.lower
