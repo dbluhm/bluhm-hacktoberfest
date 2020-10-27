@@ -5,7 +5,7 @@ from collections import namedtuple
 
 def accident():
     print("that wasn't an option, you have to type it as it is seen.")
-    time.sleep(30)
+    time.sleep(5)
     print("go on, type it correctly.")
 
 
@@ -25,6 +25,13 @@ class Creature:
         damage_dealt = self.strength - other.defense
         other.hp -= damage_dealt
         print("{} attacks {} -- {} damage dealt!".format(self.name, other.name, damage_dealt))
+
+    def use_item(self, used):
+        used1 = used.hpboost
+        used2 = used.strboost
+        used3 = used.spdboost
+        used4 = used.defboost
+        print("{},{},{},{}".format(used1, used2, used3, used4))
 
     def run(self, other):
         getaway = self.speed - other.speed
@@ -98,7 +105,7 @@ class Region:
 
 
 # Global variables for our players
-player_fighter = Player("fighter", "Bob the Great", hp=15, strength=15, speed=5, defense=10)
+player_fighter = Player("fighter", "Bob the Great", hp=16, strength=15, speed=5, defense=10)
 player_rouge = Player("rouge", "Thievy McTheivface", hp=15, strength=10, speed=15, defense=5)
 player_mage = Player("mage", "The Mad Hatter", hp=10, strength=20, speed=5, defense=5)
 
@@ -116,21 +123,21 @@ class Item:
     """
     container for item info
     """
-    def __init__(self, hpboost, strboost, spdboost, defboost)
+    def __init__(self, hpboost, strboost, spdboost, defboost):
         self.hpboost = hpboost
         self.strboost = strboost
         self.spdboost = spdboost
         self.defboost = defboost
 
 
-potion = item(hpboost=5, strboost=0, spdboost=0, defboost=0)
+potion = Item(hpboost=5, strboost=0, spdboost=0, defboost=0)
 
 
 class Market:
     """
     container for item costs
     """
-    def __init__(self, cost)
+    def __init__(self, cost):
         self.cost = cost
 
 
@@ -139,12 +146,12 @@ inventory = ()
 
 
 #this is the Individual monster stats
-Ogre = Monster(Creature)("hills","Ogre", hp=5, strength=5, speed=1, defense=3, gold=2)
-Wolves = Monster(Creature)("forest", "wolves", hp=5, strength=5, speed=10, defense=5, gold=4)
-Giant_Cobra = Monster(Creature)("Forest", "Giant Cobra", hp=5, strength=5, speed=5, defense=5, gold=3)
-Terasque = Monster(Creature)("none", "Terasque", hp=20, strength=20, speed=5, defense=30, gold=20)
-Bandits = Monster(Creature)("Forest", "Bandits", hp=5, strength=5, speed=5, defense=3, gold=3)
-Bear = Monster(Creature)("Forest", "Bear", hp=10, strength=10, speed=5, defense=5, gold=5)
+Ogre = Monster("hills","Ogre", hp=5, strength=5, speed=1, defense=3, gold=2)
+Wolves = Monster("forest", "wolves", hp=5, strength=5, speed=10, defense=5, gold=4)
+Giant_Cobra = Monster("Forest", "Giant Cobra", hp=5, strength=5, speed=5, defense=5, gold=3)
+Terasque = Monster("none", "Terasque", hp=20, strength=20, speed=5, defense=30, gold=20)
+Bandits = Monster("Forest", "Bandits", hp=5, strength=5, speed=5, defense=3, gold=3)
+Bear = Monster("Forest", "Bear", hp=10, strength=10, speed=5, defense=5, gold=5)
 
 
 #this is the random number generator
@@ -155,13 +162,22 @@ def numberE ():
     return numberENC - forest.completed
 
 
-potion = used
-def use_item ():
-    used1 = used.hpboost
-    used2 = used.strboost
-    used3 = used.spdboost
-    used4 = used.defboost
-    print("{},{},{},{}".format(used1, used2, used3, used4))
+def inputstr(prompt):
+    value = ""
+    while value == "":
+        value = input(prompt)
+    return value
+
+
+def uniquestr(prompt, error, context):
+    while True:
+        value = inputstr(prompt)
+        if value.lower() not in context:
+            print(error)
+            continue
+        else:
+            break
+    return value
 
 
 ForestIN = {
@@ -189,17 +205,17 @@ ForestIN = {
 Fcreature = ForestIN
 
 
-def encounter ():
+def encounter():
     print("you encounter {}!".format(ForestIN[str(EN)](str(Fcreature))))
 
 
-def regions ():
+def regions():
     encounter()
     forest.completed += 1
     numberE()
 
 
-def Forestmain ():
+def Forestmain():
     numberENC = 10
     if numberENC < 0:
         encounter()
@@ -209,28 +225,27 @@ def Forestmain ():
         print("which region do you want to go to? ")
 
 
-def choice ():
+def choice():
+    pass
 
 
 # This is the mian function this is the first function that the script
 # will execute. All functions should be called from main
 def main():
     print("Welcome to text legends!")
-    time.sleep(15)
+    time.sleep(2)
     print("This is a text based game where your goal is to survive as an adventurer as long as possible.")
-    time.sleep(15)
+    time.sleep(2)
     print("You may type exit at any time to exit the game.")
-    time.sleep(15)
+    time.sleep(2)
     print("Type start to begin.")
     action = input()
     action = action.lower
-
-#here is the game loop
-    action = ""
-    while action != start:
-        accident()
-    else:
-        choice()
+    action = uniquestr(
+        '',
+        "That wasn't an option! Type it corretly, please!",
+        {'start'}
+    )
 
 
 if __name__ == "__main__":
