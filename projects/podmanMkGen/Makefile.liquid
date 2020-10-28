@@ -1,0 +1,95 @@
+SERVICE_PATH=/etc/systemd/system
+
+all: {% for container in containers %} {{ container.name }} {% endfor %}
+
+help:
+	@echo "USAGE: make TARGET [TARGET...]"
+	@echo "Targets:"
+	@echo -e "   help\t\t\tDisplay this help message"
+	@echo -e "   all (default)\tCreate and start containers"
+	@echo -e "   list\t\t\tList containers"
+	@echo -e "   start\t\tStart containers"
+	@echo -e "   stop\t\t\tStop containers"
+	@echo -e "   install\t\tInstall systemd service files for containers"
+	@echo -e "   enable\t\tEnable systemd service files for containers"
+	@echo -e "   disable\t\tDisable systemd service files for containers"
+	@echo -e "   clean\t\tClean up everything"
+
+list:
+	{% for container in containers %}
+	@echo -e "{{container.name}}: {{container.description}}"
+	{% endfor %}
+{% if pod %}
+
+pod:
+	podman pod create --name {{pod.name}} \
+	{% for container in containers %}
+	{% for port in container.ports %}-p {{port}} {% endfor %}
+	{% endfor %}
+{% endif %}
+
+{% for container in containers %}
+{{container.name}}:{% if pod %} | pod{% endif %}
+	podman create --name {{container.name}} \
+	{% if pod %}
+	--pod {{pod.name}} \
+	{% endif %}
+	
+{% endfor %}
+nextcloud: | pod
+	podman create --name Nextcloud \
+	--pod base \
+	-v /srv/nextcloud:/var/www/html:z \
+	-v /mnt/storage/nextcloud-data/:/var/www/html/data:z \
+	nextcloud
+
+database: | pod
+	podman create --name database \
+	--pod base \
+	-v /srv/database:/var/lib/mysql:z \
+	-e MYSQL_ROOT_PASSWORD=2XdsaThn9XPDpV \
+	mariadb
+
+proxy:
+	podman create --name proxy \
+	-v /srv/nginx/conf.d:/etc/nginx/conf.d:z \
+	-v /srv/nginx/letsencrypt:/etc/letsencrypt:z \
+	-p 80:80 \
+	-p 443:443 \
+	nginx-certbot
+
+start:
+	podman start Nextcloud
+	podman start database
+	podman start proxy
+
+stop:
+	-podman stop Nextcloud
+	-podman stop database
+	-podman stop proxy
+
+install:
+	podman generate systemd Nextcloud > $(SERVICE_PATH)/nextcloud.service
+	podman generate systemd database > $(SERVICE_PATH)/database.service
+	podman generate systemd proxy > $(SERVICE_PATH)/reverse-proxy.service
+
+enable:
+	systemctl enable nextcloud.service
+	systemctl enable database.service
+	systemctl enable reverse-proxy.service
+
+disable:
+	systemctl disable nextcloud.service
+	systemctl disable database.service
+	systemctl disable reverse-proxy.service
+
+clean: stop
+	-podman container rm Nextcloud
+	-podman container rm database
+	-podman container rm proxy
+	-podman pod rm base
+	-rm $(SERVICE_PATH)/nextcloud.service
+	-rm $(SERVICE_PATH)/database.service
+	-rm $(SERVICE_PATH)/reverse-proxy.service
+
+.PHONY: all pod nextcloud database stop install enable disable clean
