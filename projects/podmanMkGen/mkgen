@@ -1,0 +1,45 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'liquid'
+
+template = Liquid::Template.parse(File.open('Makefile.liquid').read)
+
+test_data = {
+  'pods' => [
+    {
+      'name' => 'base',
+      'containers' => [
+        {
+          'ports' => ['8080:80']
+        },
+        {
+          'ports' => ['3000:3000']
+        }
+      ]
+    }
+  ],
+  'containers' => [
+    {
+      'name' => 'nextcloud',
+      'description' => 'Nextcloud server',
+      'image' => 'nextcloud',
+      'pod' => 'base',
+      'ports' => ['8080:80', '443:443'],
+      'volumes' => [
+        '/srv/nextcloud:/var/www/html:z',
+        '/mnt/storage/nextcloud-data:/var/www/html/data:z'
+      ]
+    },
+    {
+      'name' => 'nginx',
+      'description' => 'Nginx',
+      'image' => 'nginx',
+      'ports' => ['3000:80', '3443:443'],
+      'volumes' => [
+        '/srv/nextcloud:/var/www/html:z',
+      ]
+    }
+  ]
+}
+puts template.render(test_data)

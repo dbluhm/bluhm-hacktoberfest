@@ -1,6 +1,6 @@
 SERVICE_PATH=/etc/systemd/system
 
-all: {% for container in containers %} {{ container.name }} {% endfor %}
+all: {{ containers | map: "name" | join: " " }}
 
 help:
 	@echo "USAGE: make TARGET [TARGET...]"
@@ -16,66 +16,64 @@ help:
 	@echo -e "   clean\t\tClean up everything"
 
 list:
-	{% for container in containers %}
+	{% for container in containers -%}
 	@echo -e "{{container.name}}{% if container.pod %} ({{container.pod}}){% endif %}: {{container.description}}"
 	{% endfor %}
-{% for pod in pods %}
+{%- for pod in pods %}
 
-pod.name:
-	podman pod create --name {{pod.name}} \
-	{% for container in pod.containers %}
-	{% for port in container.ports %}-p {{port}} {% endfor %}
-	{% endfor %}
+{{pod.name}}:
+	{%- assign ports = pod.containers | map: "ports" | join: " -p " %}
+	podman pod create --name {{pod.name}}{% if ports %} \{% endif %}
+	{% if ports %}	-p {{ports}}{% endif %}
 {% endfor %}
 
-{% for container in containers %}
+{%- for container in containers %}
 {{container.name}}:{% if container.pod %} | {{container.pod}}{% endif %}
 	podman create --name {{container.name}} \
-	{% if container.pod %}
-	--pod {{container.pod}} \
-	{% endif %}
-	{% unless container.pod %}
-	{% for port in container.ports %}-p {{port}} {% endfor %} \
-	{% endunless %}
-	{% for volume in container.volumes %}
-	-v {{volume}} \
-	{% endfor %}
-	{{container.image}}
+	{%- if container.pod %}
+		--pod {{container.pod}} \
+	{%- else %}
+		-p {{ container.ports | join: " -p "}} \
+	{%- endif %}
+	{%- for volume in container.volumes %}
+		-v {{volume}} \
+	{%- endfor %}
+		{{container.image}}
 
-{% endfor %}
+{%- endfor %}
 
 start:
-	{% for container in containers %}
+	{%- for container in containers %}
 	podman start {{container.name}}
-	{% endfor %}
+	{%- endfor %}
 
 stop:
-	{% for container in containers %}
+	{%- for container in containers %}
 	-podman stop {{container.name}}
-	{% endfor %}
+	{%- endfor %}
 
 install:
-	{% for container in containers %}
+	{%- for container in containers %}
 	podman generate systemd {{container.name}} > $(SERVICE_PATH)/{{container.name}}.service
-	{% endfor %}
+	{%- endfor %}
 
 enable:
-	{% for container in containers %}
+	{%- for container in containers %}
 	systemctl enable {{container.name}}.service
-	{% endfor %}
+	{%- endfor %}
 
 disable:
-	{% for container in containers %}
+	{%- for container in containers %}
 	systemctl disable {{container.name}}.service
-	{% endfor %}
+	{%- endfor %}
 
 clean: stop disable
-	{% for container in containers %}
+	{%- for container in containers %}
 	-podman container rm {{container.name}}
 	-rm $(SERVICE_PATH)/{{container.name}}.service
-	{% endfor %}
-	{% for pod in pods %}
-	podman pod rm {{pod.name}}
-	{% endfor %}
+	{%- endfor %}
+	{%- for pod in pods %}
+	-podman pod rm {{pod.name}}
+	{%- endfor %}
 
 .PHONY: all help list {{ pods | map: "name" | join: " " }} {{ containers | map: "name" | join: " "}} start stop install enable disable clean
