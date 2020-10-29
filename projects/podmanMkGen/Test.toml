@@ -1,0 +1,18 @@
+[pod.base]
+name = "base"
+
+[pod.other]
+name = "other"
+
+[container.nextcloud]
+name = "nextcloud"
+image = "nextcloud"
+pod = "base"
+ports = [
+    "8080:80",
+    "443:443"
+]
+volumes = [
+    "/srv/nextcloud:/var/www/html:z",
+    "/mnt/storage/nextcloud-data:/var/www/html/data:z"
+]

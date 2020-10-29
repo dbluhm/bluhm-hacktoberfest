@@ -2,44 +2,20 @@
 # frozen_string_literal: true
 
 require 'liquid'
+require 'toml'
+
+test = TOML.load_file("Test.toml")
+pods = test["pod"].flatten.select {|value| value.is_a?(Hash)}
+conts = test["container"].flatten.select {|value| value.is_a?(Hash)}
+
+pods.each do |pod|
+  pod ["containers"] = conts.select {|container| container.has_key?("pod") && container["pod"] == pod["name"]}
+end
 
 template = Liquid::Template.parse(File.open('Makefile.liquid').read)
 
 test_data = {
-  'pods' => [
-    {
-      'name' => 'base',
-      'containers' => [
-        {
-          'ports' => ['8080:80']
-        },
-        {
-          'ports' => ['3000:3000']
-        }
-      ]
-    }
-  ],
-  'containers' => [
-    {
-      'name' => 'nextcloud',
-      'description' => 'Nextcloud server',
-      'image' => 'nextcloud',
-      'pod' => 'base',
-      'ports' => ['8080:80', '443:443'],
-      'volumes' => [
-        '/srv/nextcloud:/var/www/html:z',
-        '/mnt/storage/nextcloud-data:/var/www/html/data:z'
-      ]
-    },
-    {
-      'name' => 'nginx',
-      'description' => 'Nginx',
-      'image' => 'nginx',
-      'ports' => ['3000:80', '3443:443'],
-      'volumes' => [
-        '/srv/nextcloud:/var/www/html:z',
-      ]
-    }
-  ]
+  'pods' => pods,
+  'containers' => conts
 }
 puts template.render(test_data)
