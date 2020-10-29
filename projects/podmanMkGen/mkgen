@@ -7,16 +7,16 @@ require 'pathname'
 # Determine path of file (following symlinks)
 PATH = Pathname.new(__FILE__).realpath.parent
 
-# Make sure we're in a place where bundler can load
-Dir.chdir(PATH) do
-  # Set up bundler
-  require 'rubygems'
-  require 'bundler/setup'
+# Add our location to the LOAD_PATH so bunlder knows where to find Gemfile
+$LOAD_PATH.unshift PATH
 
-  # external dependencies
-  require 'liquid'
-  require 'toml'
-end
+# Set up bundler
+require 'rubygems'
+require 'bundler/setup'
+
+# external dependencies
+require 'liquid'
+require 'toml'
 
 TEMPLATE_PATH = PATH / 'Makefile.liquid'
 TEMPLATE = Liquid::Template.parse(TEMPLATE_PATH.read)
