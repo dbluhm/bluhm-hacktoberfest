@@ -2,7 +2,7 @@ import random
 import time
 
 from creatures import Fighter, Mage, Rouge
-from utils import uniquestr
+from utils import uniquestr, inputstr
 
 def accident():
     print("that wasn't an option, you have to type it as it is seen.")
@@ -31,12 +31,28 @@ def intro():
 
 def player_selection():
     """Prompt player."""
-    print('PLAYER SELECTION HAPPENS HERE')
-    return []
+    print('Please select your player class.')
+    print('Your options are Figher, Mage, or Rouge.')
+    player_class = uniquestr(
+        'Class (Fighter, Mage, or Rouge): ',
+        "That wasn't right... Try again.",
+        {'fighter', 'mage', 'rouge'}
+    )
+    name = inputstr('Enter your player name: ')
+    player_class = player_class.lower()
+
+    if player_class == 'fighter':
+        player = Fighter(name)
+    elif player_class == 'mage':
+        player = Mage(name)
+    elif player_class == 'rogue':
+        player = Rogue(name)
+
+    return player
 
 
-def game(players):
-    print("DOING STUFF WITH PLAYERS {}".format(players))
+def game(player):
+    print("DOING STUFF WITH PLAYER {}".format(player.name))
 
 
 def main():
@@ -45,8 +61,8 @@ def main():
     will execute. All functions should be called from main.
     """
     intro()
-    players = player_selection()
-    game(players)
+    player = player_selection()
+    game(player)
 
 
 
