@@ -3,6 +3,8 @@
 
 # builtins
 require 'pathname'
+require 'optparse'
+require 'ostruct'
 
 # Determine path of mkgen (following symlinks)
 PATH = Pathname.new(__FILE__).realpath.parent
@@ -67,4 +69,31 @@ def render(config_file)
   TEMPLATE.render(context)
 end
 
-puts render PATH / 'Test.toml'
+options = OpenStruct.new
+OptionParser.new do |opt|
+  opt.on('-f', '--file FILE', 'Config file') { |o| options.file = o }
+  opt.on('-o', '--out OUTFILE', 'Output file') { |o| options.out = o }
+end.parse!
+
+if options.file == nil
+  options.file = 'containers.toml'
+end
+
+if options.out == nil
+  options.out = STDOUT
+else
+  options.out = File.open(options.out,'w') 
+end
+
+status = 0
+
+begin
+  options.out.puts render options.file 
+rescue Exception => e
+  puts e.message
+  status = 1
+ensure
+  options.out.close
+end
+
+exit status
