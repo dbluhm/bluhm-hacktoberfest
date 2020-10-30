@@ -54,12 +54,12 @@ class Creature:
 
             else:
                 print("ummm, there was an error.")
-                time.sleep(10)
+                time.sleep(5)
                 print("sending you back now")
 
         elif getaway > 0:
             print("{} got away.".format(other.name))
-            time.sleep(10)
+            time.sleep(5)
 
         else:
             print("{} couldn't get away, but you avoided the counter attack.")
@@ -182,10 +182,10 @@ def uniquestr(prompt, error, context):
 
 ForestIN = {
     "1":lambda Fcreature: "Ogre",
-    "2":lambda Fcreature: "a giant cobra, Lose 2 HP",
-    "3":lambda Fcreature: "a terasque, Lose 3 HP",
-    "4":lambda Fcreature: "wolves, Lose 1 HP",
-    "5":lambda Fcreature: "bandits, Lose 1 HP",
+    "2":lambda Fcreature: "Giant Cobra",
+    "3":lambda Fcreature: "Terasque",
+    "4":lambda Fcreature: "Wolves",
+    "5":lambda Fcreature: "Bandits",
     "6":lambda Fcreature: "a bear, Lose 2 HP",
     "7":lambda Fcreature: "giant weasles, Lose 2 HP",
     "8":lambda Fcreature: "bandits, Lose 1 HP",
@@ -209,25 +209,17 @@ def encounter():
     print("you encounter {}!".format(ForestIN[str(EN)](str(Fcreature))))
 
 
-def regions():
-    encounter()
-    forest.completed += 1
-    numberE()
-
-
-def Forestmain():
-    numberENC = 10
-    if numberENC < 0:
-        encounter()
-        forest.completed += 1
-        numberE()
-    elif numberENC == 0:
-        print("which region do you want to go to? ")
-
-
 def choice():
-    pass
-
+    print("you encounter an {}"
+    .format())
+    print("would you like to attack or run?")
+    decision = input()
+    decision = decision.lower
+    decision = uniquestr(
+        ''
+        "That doesnt appear to have been an option, type it correctly."
+        {'attack', 'run'}
+    )
 
 # This is the mian function this is the first function that the script
 # will execute. All functions should be called from main
@@ -246,7 +238,6 @@ def main():
         "That wasn't an option! Type it corretly, please!",
         {'start'}
     )
-
 
 if __name__ == "__main__":
     main()
