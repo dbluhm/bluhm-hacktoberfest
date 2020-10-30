@@ -26,8 +26,11 @@ list:
 	{% if ports != "" %}	-p {{ports}}{% endif %}
 {%- endfor %}
 
-{%- for container in containers %}
+{% for container in containers %}
 {{container.name}}:{% if container.pod %} | {{container.pod}}{% endif %}
+	{%- if container.build %}
+	podman build -t {{container.image}} {{container.build}}
+	{%- endif %}
 	podman create --name {{container.name}} \
 	{%- if container.pod %}
 		--pod {{container.pod}} \
@@ -39,8 +42,7 @@ list:
 	{%- endfor %}
 		{{container.image}}
 
-{%- endfor %}
-
+{% endfor %}
 start:
 	{%- for container in containers %}
 	podman start {{container.name}}
@@ -63,7 +65,7 @@ enable:
 
 disable:
 	{%- for container in containers %}
-	systemctl disable {{container.name}}.service
+	-systemctl disable {{container.name}}.service
 	{%- endfor %}
 
 clean: stop disable

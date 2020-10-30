@@ -19,6 +19,7 @@ volumes = [
 [container.reverse-proxy]
 name = "reverse-proxy"
 image = "nginx-certbot"
+build = "reverse-proxy"
 ports = [
     "80:80",
     "443:443"
