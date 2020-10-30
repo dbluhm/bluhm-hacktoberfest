@@ -9,10 +9,20 @@ name = "nextcloud"
 image = "nextcloud"
 pod = "base"
 ports = [
-    "8080:80",
-    "443:443"
+    "3000:80",
 ]
 volumes = [
     "/srv/nextcloud:/var/www/html:z",
     "/mnt/storage/nextcloud-data:/var/www/html/data:z"
+]
+
+[container.reverse-proxy]
+name = "reverse-proxy"
+image = "nginx-certbot"
+ports = [
+    "80:80",
+    "443:443"
+]
+volumes = [
+    "/srv/nginx/conf.d:/etc/nginx/conf.d:z",
 ]

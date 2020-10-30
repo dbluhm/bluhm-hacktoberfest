@@ -1,21 +1,70 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
+# builtins
+require 'pathname'
+
+# Determine path of mkgen (following symlinks)
+PATH = Pathname.new(__FILE__).realpath.parent
+
+# Add our location to the LOAD_PATH so bunlder knows where to find Gemfile
+$LOAD_PATH.unshift PATH
+
+# Set up bundler
+require 'rubygems'
+require 'bundler/setup'
+
+# external dependencies
 require 'liquid'
 require 'toml'
 
-test = TOML.load_file("Test.toml")
-pods = test["pod"].flatten.select {|value| value.is_a?(Hash)}
-conts = test["container"].flatten.select {|value| value.is_a?(Hash)}
+# Path to template
+TEMPLATE_PATH = PATH / 'Makefile.liquid'
 
-pods.each do |pod|
-  pod ["containers"] = conts.select {|container| container.has_key?("pod") && container["pod"] == pod["name"]}
+# Parsed template
+TEMPLATE = Liquid::Template.parse(TEMPLATE_PATH.read)
+
+# Flatten one layer of a hash into a list, dropping keys.
+#
+# @param [Hash] hash to flatten
+# @return [Array] flattened hash as list
+def flatten_hash_to_list(hash)
+  hash.flatten.select { |value| value.is_a?(Hash) }
 end
 
-template = Liquid::Template.parse(File.open('Makefile.liquid').read)
+# Assign containers to pods, adding containers list to each.
+#
+# @param [Array] list of pods
+# @return [nil]
+def assign_containers_to_pods!(pods, containers)
+  pods.each do |pod|
+    pod['containers'] = containers.select do |container|
+      container.key?('pod') && container['pod'] == pod['name']
+    end
+  end
+end
 
-test_data = {
-  'pods' => pods,
-  'containers' => conts
-}
-puts template.render(test_data)
+# Read in a configuration file and return the rendered Makefile
+#
+# @param [Pathname] path to configuration file to load
+# @return [String] rendered Makefile
+def render(config_file)
+  config = TOML.load_file(config_file)
+  pods = flatten_hash_to_list(config['pod'])
+  conts = flatten_hash_to_list(config['container'])
+
+  assign_containers_to_pods!(pods, conts)
+
+  context = {
+    'pods' => pods,
+    'containers' => conts
+  }
+
+  # Ruby will automatically return the value of the last expression in a
+  # function though you can explicity use the 'return' statement still.
+  # However, doing so is discouraged and 'return' is instead used only for
+  # early returns.
+  TEMPLATE.render(context)
+end
+
+puts render PATH / 'Test.toml'
